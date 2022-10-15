@@ -11,6 +11,8 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from tqdm import tqdm
 
+from sklearn.decomposition import PCA
+
 default_transforms = transforms.Compose([
     transforms.Resize([224, 224]),
     transforms.ToTensor(),
@@ -22,7 +24,6 @@ default_transforms = transforms.Compose([
 class ImageDataset(Dataset):
     def __init__(self, imgs, transform=default_transforms):
         self.imgs = imgs
-        print(imgs)
         self.transform = transform
 
     def __len__(self):
@@ -95,12 +96,19 @@ def index_and_embed_images(verbose: bool = True) -> nn.Module:
         batch = ImageDataset.to_device(batch, 'cuda')
         with torch.no_grad():
             batch = model(batch)
-        image_features.append(batch['image_features'].cpu().numpy())
-        super_classes.append(batch['super_class'])
-        classes.append(batch['class']) 
+        image_features.extend(batch['image_features'].cpu().numpy())
+        super_classes.extend(batch['super_class'])
+        classes.extend(batch['class'])
 
-    
-    
+    image_features = np.array(image_features)
+
+    for i in range(len(image_features)):
+        os.makedirs(f'cache/{super_classes[i]}/{classes[i]}', exist_ok=True)
+        np.save(f'cache/{super_classes[i]}/{classes[i]}/{i}.npy', image_features[i])
+
+        img = Image.open(dataset.imgs[i])
+        img = img.convert('RGB')
+        img.save(f'cache/{super_classes[i]}/{classes[i]}/{i}.jpg')
 
 if __name__ == '__main__':
     index_and_embed_images()
