@@ -1,0 +1,16 @@
+HNAME2ID = {
+    'electronics': 5898345,
+    'glass_clear': 5898372,
+    'aluminum': 5898251,
+    'aluminum_cans': 5898252,
+    'tin_or_steel_cans': 5898532,
+    'food_scraps': 5898313,
+    'cardboard': 5898288,
+    'paper_mixed': 5898457,
+    'pizza_boxes': 5898470,
+    'plastic_bottles': 5898472,
+    'plastic_bags': 5898472,
+    'plastic_containers': 5898476,
+    'plastic_toys': 5898477,
+    'plastic_utensils': 5898478,
+}

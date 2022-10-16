@@ -119,15 +119,8 @@ def index_and_embed_images() -> nn.Module:
     data_index = defaultdict(list)
     for d in glob('data/*/*'):
         s_c, c = d.split('/')[1:]
-
-        if 'jpg' in c:
-            data_index[s_c] = None
-            continue
-
         data_index[s_c].append(c)
-
         
-
     return model, data_index, image_features, super_classes, classes, knn
 
 if __name__ == '__main__':
