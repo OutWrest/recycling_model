@@ -1,17 +1,18 @@
 import os
-from glob import glob
 import pickle
+from collections import defaultdict
+from glob import glob
 
 import numpy as np
 import open_clip
 import torch
 from PIL import Image
+from sklearn.decomposition import PCA
+from sklearn.neighbors import NearestNeighbors
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from tqdm import tqdm
-
-from sklearn.decomposition import PCA
 
 default_transforms = transforms.Compose([
     transforms.Resize([224, 224]),
@@ -81,7 +82,7 @@ class CLIPModel_S2(torch.nn.Module):
             'class': x['class'],
         }
 
-def index_and_embed_images(verbose: bool = True) -> nn.Module:
+def index_and_embed_images() -> nn.Module:
     model = CLIPModel_S1('ViT-H-14', 'laion2b_s32b_b79k').to('cuda')
     model.eval()
 
@@ -101,14 +102,26 @@ def index_and_embed_images(verbose: bool = True) -> nn.Module:
         classes.extend(batch['class'])
 
     image_features = np.array(image_features)
+    super_classes = np.array(super_classes)
+    classes = np.array(classes)
 
     for i in range(len(image_features)):
         os.makedirs(f'cache/{super_classes[i]}/{classes[i]}', exist_ok=True)
-        np.save(f'cache/{super_classes[i]}/{classes[i]}/{i}.npy', image_features[i])
+        # np.save(f'cache/{super_classes[i]}/{classes[i]}/{i}.npy', image_features[i])
 
         img = Image.open(dataset.imgs[i])
         img = img.convert('RGB')
         img.save(f'cache/{super_classes[i]}/{classes[i]}/{i}.jpg')
+
+    knn = NearestNeighbors(n_neighbors=5, metric='cosine')
+    knn.fit(image_features)
+
+    data_index = defaultdict(list)
+    for d in glob('data/*/*'):
+        s_c, c = d.split('/')[1:]
+        data_index[s_c].append(c)
+
+    return model, data_index, image_features, super_classes, classes, knn
 
 if __name__ == '__main__':
     index_and_embed_images()
