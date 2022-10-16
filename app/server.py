@@ -5,12 +5,28 @@ from calendar import c
 import torch
 import uvicorn
 from fastapi import FastAPI, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 
 from constants import HNAME2ID
 from preload import ImageDataset, default_transforms, index_and_embed_images
 
+origins = [
+    'localhost:8080',
+    'http://localhost:8080',
+    'http://localhost:8080/',
+]
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 model, data_index, embeddings, super_classes, classes, knn = index_and_embed_images()
 
 @app.get("/")
