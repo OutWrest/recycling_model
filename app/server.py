@@ -37,5 +37,4 @@ async def create_upload_file(uploaded_img: UploadFile):
     print(dist)
 
 if __name__ == '__main__':
-    if 'start' in sys.argv:
-        uvicorn.run(app=app, host='0.0.0.0', port=1337)
+    uvicorn.run(app=app, host='0.0.0.0', port=1337)
